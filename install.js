@@ -23,10 +23,14 @@ var git = getGitFolderPath(root);
 function getGitFolderPath(currentPath) {
   var git = path.resolve(currentPath, '.git')
 
+  if (isSubModule(git)) {
+    console.log('pre-commit: Current repository is a submodule');
+  }
+
   if (!exists(git) || !fs.lstatSync(git).isDirectory()) {
     console.log('pre-commit:');
     console.log('pre-commit: Not found .git folder in', git);
-    
+
     var newPath = path.resolve(currentPath, '..');
 
     // Stop if we on top folder
@@ -40,6 +44,13 @@ function getGitFolderPath(currentPath) {
   console.log('pre-commit:');
   console.log('pre-commit: Found .git folder in', git);
   return git;
+}
+
+function isSubModule(gitFile) {
+  if (!fs.existsSync(gitFile)) {
+    return false;
+  }
+  return fs.lstatSync(gitFile).isFile() && fs.readFileSync(gitFile, 'utf8').includes('gitdir: ');
 }
 
 //
